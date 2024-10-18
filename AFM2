@@ -1,32 +1,22 @@
-local HttpService = game:GetService("HttpService")
-
--- Your Discord webhook URL
-local webhookUrl = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4"
-
--- Function to get server ID
-local function getServerId()
-    return game.JobId -- This is the unique job ID for the server
-end
-
--- Function to log information to Discord
 local function logToDiscord(player)
+    print("Logging to Discord...")  -- Debug message
     local currentTime = os.date("!%Y-%m-%d %H:%M:%S") -- UTC time
     local logData = {
-        username = player.Name,
-        userId = player.UserId,
-        gameName = game.Name,
-        serverId = getServerId(),
-        executionTime = currentTime
+        ["content"] = "**Exploit Executed!**",
+        ["embeds"] = {{
+            ["title"] = "Execution Log",
+            ["description"] = "Player has executed the exploit script.",
+            ["fields"] = {
+                {["name"] = "Game Name", ["value"] = game.Name, ["inline"] = true},
+                {["name"] = "Executed By", ["value"] = player.Name, ["inline"] = true},
+                {["name"] = "User ID", ["value"] = tostring(player.UserId), ["inline"] = true},
+                {["name"] = "Execution Time (UTC)", ["value"] = currentTime, ["inline"] = true}
+            },
+            ["color"] = 16711680
+        }}
     }
 
-    local payload = {
-        content = string.format(
-            "Player Executed Script:\n**Username:** %s\n**User ID:** %d\n**Game:** %s\n**Server ID:** %s\n**Execution Time (UTC):** %s",
-            logData.username, logData.userId, logData.gameName, logData.serverId, logData.executionTime
-        )
-    }
-
-    local jsonPayload = HttpService:JSONEncode(payload)
+    local jsonPayload = HttpService:JSONEncode(logData)
     
     -- Sending the log to Discord
     local success, err = pcall(function()
@@ -34,15 +24,8 @@ local function logToDiscord(player)
     end)
 
     if not success then
-        warn("Failed to send log to Discord: " .. err)
+        warn("Failed to send log to Discord: " .. err)  -- Log the error if it fails
+    else
+        print("Log sent successfully!")  -- Confirm success
     end
 end
-
--- Connect to PlayerAdded event to log when they join
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(message)
-        if message:lower():find("loadstring") then
-            logToDiscord(player)
-        end
-    end)
-end)

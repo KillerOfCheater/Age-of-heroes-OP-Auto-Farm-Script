@@ -1,23 +1,20 @@
+local HttpService = game:GetService("HttpService")
+
+local webhookUrl = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4"
+
 local function logToDiscord(player)
     print("Logging to Discord...")  -- Debug message
     local currentTime = os.date("!%Y-%m-%d %H:%M:%S") -- UTC time
-    local logData = {
-        ["content"] = "**Exploit Executed!**",
-        ["embeds"] = {{
-            ["title"] = "Execution Log",
-            ["description"] = "Player has executed the exploit script.",
-            ["fields"] = {
-                {["name"] = "Game Name", ["value"] = game.Name, ["inline"] = true},
-                {["name"] = "Executed By", ["value"] = player.Name, ["inline"] = true},
-                {["name"] = "User ID", ["value"] = tostring(player.UserId), ["inline"] = true},
-                {["name"] = "Execution Time (UTC)", ["value"] = currentTime, ["inline"] = true}
-            },
-            ["color"] = 16711680
-        }}
+
+    local payload = {
+        content = string.format(
+            "**Exploit Executed!**\n**Executed By:** %s\n**User ID:** %d\n**Execution Time (UTC):** %s",
+            player.Name, player.UserId, currentTime
+        )
     }
 
-    local jsonPayload = HttpService:JSONEncode(logData)
-    
+    local jsonPayload = HttpService:JSONEncode(payload)
+
     -- Sending the log to Discord
     local success, err = pcall(function()
         HttpService:PostAsync(webhookUrl, jsonPayload, Enum.HttpContentType.ApplicationJson)
@@ -29,3 +26,7 @@ local function logToDiscord(player)
         print("Log sent successfully!")  -- Confirm success
     end
 end
+
+-- Test by calling the function directly with a dummy player object
+local testPlayer = {Name = "TestUser", UserId = 123456}
+logToDiscord(testPlayer)

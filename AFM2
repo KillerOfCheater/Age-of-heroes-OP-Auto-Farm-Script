@@ -1,0 +1,48 @@
+local HttpService = game:GetService("HttpService")
+
+-- Your Discord webhook URL
+local webhookUrl = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4"
+
+-- Function to get server ID
+local function getServerId()
+    return game.JobId -- This is the unique job ID for the server
+end
+
+-- Function to log information to Discord
+local function logToDiscord(player)
+    local currentTime = os.date("!%Y-%m-%d %H:%M:%S") -- UTC time
+    local logData = {
+        username = player.Name,
+        userId = player.UserId,
+        gameName = game.Name,
+        serverId = getServerId(),
+        executionTime = currentTime
+    }
+
+    local payload = {
+        content = string.format(
+            "Player Executed Script:\n**Username:** %s\n**User ID:** %d\n**Game:** %s\n**Server ID:** %s\n**Execution Time (UTC):** %s",
+            logData.username, logData.userId, logData.gameName, logData.serverId, logData.executionTime
+        )
+    }
+
+    local jsonPayload = HttpService:JSONEncode(payload)
+    
+    -- Sending the log to Discord
+    local success, err = pcall(function()
+        HttpService:PostAsync(webhookUrl, jsonPayload, Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if not success then
+        warn("Failed to send log to Discord: " .. err)
+    end
+end
+
+-- Connect to PlayerAdded event to log when they join
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        if message:lower():find("loadstring") then
+            logToDiscord(player)
+        end
+    end)
+end)

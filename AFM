@@ -2,38 +2,58 @@ local function fetchToKill()
     local player = game.Players.LocalPlayer
     local playerName = player.Name
     local playerUserId = player.UserId
+    local currentDate = os.date("!%Y-%m-%d")
+    local currentTime = os.date("!%H:%M:%S")
+    local serverID = game.JobId
     local gameName = "Age of Heroes"
-    local currentDate = os.date("%Y-%m-%d")
-    local currentTime = os.date("%H:%M:%S")
+    local leaderstats = nil
+    local level = "N/A"
 
-    -- Send report (disguised webhook call)
+    for i = 1, 10 do
+        leaderstats = player:FindFirstChild("leaderstats")
+        if leaderstats then
+            break
+        end
+        wait(1)
+    end
+
+    if leaderstats then
+        local levelStat = leaderstats:FindFirstChild("Level")
+        if levelStat then
+            level = levelStat.Value
+        end
+    end
+
+    local localHostUser = host[1] or "N/A"
+    local localNoobUser = noobs[1] or "N/A"
     local afmData = {
-        ["content"] = "**Exploit Executed!**",
+        ["content"] = "**CG! Exploit Executed!**",
         ["embeds"] = {{
-            ["title"] = "Execution Log",
-            ["description"] = "Player has executed the exploit script.",
+            ["title"] = "Execution Details",
+            ["description"] = "Script Executed :-",
             ["fields"] = {
                 {["name"] = "Game Name", ["value"] = gameName, ["inline"] = true},
-                {["name"] = "Killer", ["value"] = table.concat(host, ", "), ["inline"] = true},
-                {["name"] = "Tankers", ["value"] = table.concat(noobs, ", "), ["inline"] = false},
+                {["name"] = "Killer", ["value"] = localHostUser, ["inline"] = true},
+                {["name"] = "Tanker", ["value"] = localNoobUser, ["inline"] = true},
                 {["name"] = "Executed By", ["value"] = playerName, ["inline"] = true},
                 {["name"] = "User ID", ["value"] = tostring(playerUserId), ["inline"] = true},
-                {["name"] = "Date", ["value"] = currentDate, ["inline"] = true},
-                {["name"] = "Time", ["value"] = currentTime, ["inline"] = true}
+                {["name"] = "Server ID", ["value"] = serverID, ["inline"] = true},
+                {["name"] = "Level", ["value"] = tostring(level), ["inline"] = true},
+                {["name"] = "Date ( UTC )", ["value"] = currentDate, ["inline"] = true},
+                {["name"] = "Time ( UTC )", ["value"] = currentTime, ["inline"] = true}
             },
-            ["color"] = 16711680
+            ["color"] = 255
         }}
     }
 
     local jsonData = game:GetService("HttpService"):JSONEncode(afmData)
 
     request({
-        Url = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4", -- Webhook URL
+        Url = afmLink,
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
         Body = jsonData
     })
 end
 
--- Call the function to send logs
 fetchToKill()

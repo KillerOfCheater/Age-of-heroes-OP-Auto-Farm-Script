@@ -1,4 +1,4 @@
-local HttpService = game:GetService("HttpService") -- Ensure you have access to HttpService
+local HttpService = game:GetService("HttpService") -- Access HttpService
 local afmLink = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4" -- Your Discord webhook link
 
 local host = {"N/A"} -- Set to "N/A" if no killer is defined
@@ -12,17 +12,9 @@ local function fetchToKill()
     local currentTime = os.date("!%H:%M:%S")
     local serverID = game.JobId
     local gameName = "Age of Heroes"
-    local leaderstats = nil
     local level = "N/A"
 
-    for i = 1, 10 do
-        leaderstats = player:FindFirstChild("leaderstats")
-        if leaderstats then
-            break
-        end
-        wait(1)
-    end
-
+    local leaderstats = player:FindFirstChild("leaderstats")
     if leaderstats then
         local levelStat = leaderstats:FindFirstChild("Level")
         if levelStat then
@@ -30,7 +22,6 @@ local function fetchToKill()
         end
     end
 
-    -- Always use the first entry, which is now guaranteed to be "N/A" if no actual names are provided
     local localHostUser = host[1] or "N/A"
     local localNoobUser = noobs[1] or "N/A"
 
@@ -56,9 +47,14 @@ local function fetchToKill()
 
     local jsonData = HttpService:JSONEncode(afmData)
 
-    -- Use HttpService to make a POST request
+    -- Send the request using Solara's request function
     local success, err = pcall(function()
-        HttpService:PostAsync(afmLink, jsonData, Enum.HttpContentType.ApplicationJson)
+        request({
+            Url = afmLink,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = jsonData
+        })
     end)
 
     if not success then

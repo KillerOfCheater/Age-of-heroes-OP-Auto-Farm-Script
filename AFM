@@ -1,4 +1,8 @@
+local HttpService = game:GetService("HttpService") -- Ensure you have access to HttpService
 local afmLink = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4" -- Your Discord webhook link
+
+local host = {"N/A"} -- Set to "N/A" if no killer is defined
+local noobs = {"N/A"} -- Set to "N/A" if no tanker is defined
 
 local function fetchToKill()
     local player = game.Players.LocalPlayer
@@ -26,8 +30,10 @@ local function fetchToKill()
         end
     end
 
+    -- Always use the first entry, which is now guaranteed to be "N/A" if no actual names are provided
     local localHostUser = host[1] or "N/A"
     local localNoobUser = noobs[1] or "N/A"
+
     local afmData = {
         ["content"] = "**CG! Exploit Executed!**",
         ["embeds"] = {{
@@ -48,14 +54,16 @@ local function fetchToKill()
         }}
     }
 
-    local jsonData = game:GetService("HttpService"):JSONEncode(afmData)
+    local jsonData = HttpService:JSONEncode(afmData)
 
-    request({
-        Url = afmLink,
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = jsonData
-    })
+    -- Use HttpService to make a POST request
+    local success, err = pcall(function()
+        HttpService:PostAsync(afmLink, jsonData, Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if not success then
+        warn("Failed to send webhook: " .. err) -- Log the error if the request fails
+    end
 end
 
 fetchToKill()

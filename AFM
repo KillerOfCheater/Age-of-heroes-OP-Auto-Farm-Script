@@ -1,3 +1,5 @@
+local afmLink = "https://discordapp.com/api/webhooks/1296620356307779686/o9xb9C0UnUAsfu0iXVbEH6q5UC_RNq497N0xFaTt7jE0mEufqOyrJelxNHhGvss3YRx4" -- Your Discord webhook link
+
 local function fetchToKill()
     local player = game.Players.LocalPlayer
     local playerName = player.Name
